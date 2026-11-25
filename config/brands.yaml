@@ -1,0 +1,5 @@
+brand_1:
+  enabled: false
+
+brand_2:
+  enabled: true

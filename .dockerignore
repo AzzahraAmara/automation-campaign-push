@@ -1,0 +1,20 @@
+# KREDENSIAL - jangan sampai masuk image
+.env
+.env.*
+credentials/
+sa-*.json
+*.json
+
+# Tidak perlu di dalam image
+output/
+logs/
+.git/
+.gitignore
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+README.md
+docker-compose.local.yml
+sql/
+tests/

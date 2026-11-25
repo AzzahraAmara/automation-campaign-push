@@ -1,0 +1,110 @@
+# =========================================================================
+# BRAND 2 CONFIGURATION
+# =========================================================================
+
+brand: brand_2
+brand_label: Brand 2
+campaign_name: "YOUR_CAMPAIGN_LABEL"
+sender: "YOUR_SENDER_NAME"
+workspace: "YOUR_WORKSPACE"
+
+# --- Data ---
+
+# Source data and generic eligibility filter are defined in query.sql.
+# Rekap enqueue dan status antrean yang terbaca saat sinkronisasi.
+recap_table: "your-project.your_dataset.campaign_recap"
+recap_enabled: true
+fondasi_log_table: "your-project.your_dataset.messaging_status_log"
+
+# Replace with the authorized campaign lookback window before running.
+lookback_days: YOUR_LOOKBACK_DAYS
+
+cooldown_days: 0
+
+batch_limit: 0
+
+# --- Dimensi campaign: PRODUK---
+dimensi_kolom: kode_produk
+
+# Brand 2 tidak punya ID outlet/customer terpisah - cuma nama + nomor WA
+# dari Google Form. Alert nomor invalid otomatis pakai 'nama' sebagai
+# pengenal cadangan (lihat core/transform.py).
+id_kolom: null
+
+# Example catalog used when a source product code is missing.
+product_catalog:
+  "Sample product 01": product_01
+  "Sample product 02": product_02
+  "Sample product 03": product_03
+  "Sample product 04": product_04
+  "Sample product 05": product_05
+  "Sample product 06": product_06
+  "Sample product 07": product_07
+  "Sample product 08": product_08
+  "Sample product 09": product_09
+  "Sample product 10": product_10
+  "Sample product 11": product_11
+  "Sample product 12": product_12
+  "Sample product 13": product_13
+  "Sample product 14": product_14
+  "Sample product 15": product_15
+  "Sample product 16": product_16
+
+# Optional expiry date calculation. Replace the duration placeholder with an
+# authorized integer before running.
+warranty_period:
+  source_date: event_date
+  years: YOUR_WARRANTY_YEARS
+  end_of_month: true
+
+# Tanggal input dari BQ dapat berbentuk timestamp. Format sebagai tanggal
+# Indonesia sebelum menjadi parameter WhatsApp, agar jam (mis. 00:00:00)
+# tidak ikut tampil.
+date_display_fields:
+  - tanggal_pembelian
+
+# This example deduplicates by recipient and product, allowing multiple
+# product-specific messages for the same recipient.
+dedup_subset:
+  - nomor_wa
+  - kode_produk
+
+# =========================================================================
+# NAMA CAMPAIGN - SATU PER PRODUK
+# =========================================================================
+campaigns:
+  product_01: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_01"
+  product_02: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_02"
+  product_03: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_03"
+  product_04: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_04"
+  product_05: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_05"
+  product_06: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_06"
+  product_07: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_07"
+  product_08: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_08"
+  product_09: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_09"
+  product_10: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_10"
+  product_11: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_11"
+  product_12: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_12"
+  product_13: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_13"
+  product_14: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_14"
+  product_15: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_15"
+  product_16: "YOUR_CAMPAIGN_CODE_FOR_PRODUCT_16"
+
+# =========================================================================
+# TEMPLATE - CUMA 1, dipakai SEMUA produk (template_shared: true, jadi
+# 'templates' DITULIS SEKALI SAJA)
+# =========================================================================
+template_mode: multi_param
+template_shared: true
+
+# Urutan kolom di sini = urutan {{1}} {{2}} {{3}} {{4}} di template.
+# Kolom yang datang dari query/sheet: nama, nama_produk, tanggal_pembelian.
+# periode_garansi dihitung otomatis dari event_date memakai warranty_period.
+param_fields:
+  - nama
+  - nama_produk
+  - tanggal_pembelian
+  - periode_garansi
+
+templates:
+  multi_param: YOUR_TEMPLATE_NAME

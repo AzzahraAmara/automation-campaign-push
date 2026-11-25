@@ -1,0 +1,30 @@
+# JANGAN PERNAH DI-COMMIT
+.env
+.env.*
+!.env.example
+*.json
+!sources/**/*.json
+credentials/*
+!credentials/README.md
+!credentials/*.json.template
+sa-*.json
+
+# Log, riwayat run, dan sampel lokal
+*.xlsx
+!examples/campaign_queue_recap_demo.xlsx
+*.csv
+result_*.jpeg
+!docs/images/result_*.jpeg
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

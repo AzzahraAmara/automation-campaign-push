@@ -1,0 +1,15 @@
+services:
+  campaign-push:
+    build: .
+    image: campaign-push:latest
+    env_file:
+      - .env
+    volumes:
+      - ./config/brands.yaml:/app/config/brands.yaml:ro
+      # WAJIB - tanpa ini, runlog.jsonl (riwayat semua run) hilang tiap
+      # kali container dibuat ulang (redeploy, update image, dll). Tidak
+      # ada file .log per run lagi - ringkasan cuma tercetak ke stdout.
+      - ./logs:/app/logs
+      # WAJIB - file JSON kredensial BigQuery tidak pernah ikut di-build
+      # ke image (.dockerignore memblokir *.json). :ro = read-only, cukup.
+      - ./credentials:/app/credentials:ro

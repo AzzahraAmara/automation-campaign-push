@@ -1,0 +1,41 @@
+name: Automation Campaign - Check Results
+
+# 09.00 WIB. Cron Gitea memakai UTC.
+"on":
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  check-results:
+    runs-on: campaign-push
+    env:
+      TZ: ICT-7
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Siapkan Python
+        run: |
+          python3.11 -m venv .venv
+          .venv/bin/python -m pip install -r requirements.txt
+
+      - name: Jalankan check-results untuk brand aktif
+        env:
+          BQ_PROJECT: ${{ secrets.BQ_PROJECT }}
+          BQ_LOCATION: ${{ secrets.BQ_LOCATION }}
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          QUEUE_DB_SERVER: ${{ secrets.QUEUE_DB_SERVER }}
+          QUEUE_DB_NAME: ${{ secrets.QUEUE_DB_NAME }}
+          QUEUE_DB_USER: ${{ secrets.QUEUE_DB_USER }}
+          QUEUE_DB_PASSWORD: ${{ secrets.QUEUE_DB_PASSWORD }}
+          QUEUE_DB_PORT: ${{ secrets.QUEUE_DB_PORT }}
+          QUEUE_DB_SCHEMA: ${{ secrets.QUEUE_DB_SCHEMA }}
+          QUEUE_DB_URL: ${{ secrets.QUEUE_DB_URL }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+        run: .venv/bin/python .gitea/scripts/run_campaign.py check-results

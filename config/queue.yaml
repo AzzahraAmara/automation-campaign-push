@@ -1,0 +1,71 @@
+# =========================================================================
+# PEMETAAN KE TABEL ANTREAN SQL SERVER
+#
+# Server   : <YOUR_SQL_SERVER_HOST>
+# Database : <YOUR_SQL_SERVER_DATABASE>
+# Tabel    : <YOUR_QUEUE_TABLE>
+# Consumer : Fondasi / WhatsApp blast engine
+
+# Cara mengisi 'columns':
+#     <nama_kolom_di_tabel_antrean>: <sumber_nilai>
+#
+# Sumber nilai yang dikenali:
+#     nomor_wa / nama / segmen / template_name / param_1 / params_json /
+#     customer_id / event_date / campaign_name / campaign_code / sender /
+#     brand / run_id / cycle_key / as_of   -> ambil dari data
+#     const:NILAI                          -> string tetap
+#     now / today / uuid                   -> dihitung saat jalan
+#     null                                 -> NULL
+#     angka / boolean polos (tanpa kutip)  -> dipakai apa adanya
+# =========================================================================
+
+table: YOUR_QUEUE_TABLE
+schema: YOUR_QUEUE_SCHEMA
+
+# -------------------------------------------------------------------------
+# Kolom yang diisi. Sisanya milik engine blast:
+#   intQueueId       -> identity, jangan disuplai
+#   txtParamResponse -> diisi engine
+#   txtMessageId     -> diisi engine
+#   dtUpdated        -> diisi engine
+# -------------------------------------------------------------------------
+columns:
+  txtVendor:        "const:Bahasa.Ai"
+  txtPhoneNo:       nomor_wa
+  txtWorkspaceName: workspace           # dari config brand - tiap brand bisa beda
+  txtTemplateName:  template_name
+  TxtCampaignName:  campaign_code
+  txtSegmentName:   null
+  txtParams:        params_json
+  bolSuccess:       0                   # WAJIB 0 - engine yang mengubahnya jadi 1 setelah terkirim
+  dtInserted:       now
+
+campaign_code_column: TxtCampaignName
+
+# Nomor yang sudah dikirimi pesan dalam :cooldown_days hari terakhir.
+# Parameter tersedia:
+#   :campaign_codes  -> DAFTAR nama campaign brand ini (satu per segmen),
+#                       jadi pakai IN, bukan =. Cooldown sengaja dicek
+#                       lintas segmen.
+#   :cooldown_days   -> angka hari
+cooldown_query: |
+  SELECT DISTINCT txtPhoneNo
+  FROM YOUR_QUEUE_TABLE
+  WHERE TxtCampaignName IN :campaign_codes
+    AND dtInserted >= DATEADD(DAY, -1 * :cooldown_days, CAST(GETDATE() AS DATE))
+
+# Baris yang GAGAL dikirim Bahasa.Ai (dipakai --mode check-results).
+# txtParamResponse NULL = belum diproses sama sekali (bukan gagal, jangan
+# ikut dihitung) - makanya pakai IS NOT NULL, bukan bolSuccess=0 saja.
+# Parameter tersedia:
+#   :campaign_codes  -> sama seperti cooldown_query
+#   :sejak_jam       -> jendela waktu masuk antrean untuk alert.
+#                       Brand dengan rekap hanya melaporkan ID yang ada di rekap.
+check_results_query: |
+  SELECT intQueueId, txtPhoneNo, txtTemplateName, TxtCampaignName, txtParamResponse, dtInserted
+  FROM YOUR_QUEUE_TABLE
+  WHERE TxtCampaignName IN :campaign_codes
+    AND bolSuccess = 0
+    AND txtParamResponse IS NOT NULL
+    AND dtInserted >= DATEADD(HOUR, -1 * :sejak_jam, GETDATE())
+  ORDER BY dtInserted DESC

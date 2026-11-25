@@ -1,0 +1,82 @@
+# =========================================================================
+# BRAND 1 CONFIGURATION
+# =========================================================================
+
+brand: brand_1
+brand_label: Brand 1
+campaign_name: "YOUR_CAMPAIGN_LABEL"
+sender: "YOUR_SENDER_NAME"
+# Messaging workspace; each brand can use a separate workspace.
+workspace: "YOUR_WORKSPACE"
+
+# --- Data ---
+outlet_table: "your-project.your_dataset.master_entity"
+recap_table: "your-project.your_dataset.campaign_recap"
+recap_enabled: true
+fondasi_log_table: "your-project.your_dataset.messaging_status_log"
+
+# Replace with the authorized campaign lookback window before running.
+lookback_days: YOUR_LOOKBACK_DAYS
+
+# TIDAK ADA cooldown.
+cooldown_days: 0
+
+# 0 = tanpa batas. Isi angka kecil saat pilot.
+batch_limit: 0
+
+# Prioritas dimensi - digunakan sebagai tie-breaker.
+segment_priority:
+  - segment_01
+  - segment_02
+  - segment_03
+
+# Urutan segment_priority di atas cuma dipakai kalau quantity-nya SERI.
+#   quantity   menang berdasarkan total unit terjual (AKTIF)
+#   fixed      menang berdasarkan segment_priority saja (perilaku lama)
+segment_selection: quantity
+
+# Contoh bulanan: nomor tetap dapat menerima pesan sesuai siklus konfigurasi.
+# Isi nomor_wa untuk mengaktifkan.
+monthly_sample:
+  nomor_wa: ""
+  nama: ""
+  urutan_segmen:
+    - segment_01
+    - segment_02
+    - segment_03
+
+# =========================================================================
+# NAMA CAMPAIGN - SATU PER SEGMEN
+#
+# Nilai campaign yang diteruskan ke tabel antrean
+# =========================================================================
+campaigns:
+  segment_01: "YOUR_CAMPAIGN_CODE_FOR_SEGMENT_01"
+  segment_02: "YOUR_CAMPAIGN_CODE_FOR_SEGMENT_02"
+  segment_03: "YOUR_CAMPAIGN_CODE_FOR_SEGMENT_03"
+
+# =========================================================================
+# MODE TEMPLATE
+#
+#   single   1 template per segmen, TANPA parameter -> txtParams selalu []
+#   by_name  2 template per segmen, v1 ada nama (1 param) / v2 tanpa nama
+# =========================================================================
+template_mode: single
+
+templates:
+  segment_02:
+    # dipakai saat template_mode: single
+    single: YOUR_TEMPLATE_NAME_FOR_SEGMENT_02
+    # dipakai saat template_mode: by_name (versi lama, masih disimpan)
+    with_name: YOUR_TEMPLATE_WITH_NAME_FOR_SEGMENT_02
+    without_name: YOUR_TEMPLATE_WITHOUT_NAME_FOR_SEGMENT_02
+
+  segment_03:
+    single: YOUR_TEMPLATE_NAME_FOR_SEGMENT_03
+    with_name: YOUR_TEMPLATE_WITH_NAME_FOR_SEGMENT_03
+    without_name: YOUR_TEMPLATE_WITHOUT_NAME_FOR_SEGMENT_03
+
+  segment_01:
+    single: YOUR_TEMPLATE_NAME_FOR_SEGMENT_01
+    with_name: YOUR_TEMPLATE_WITH_NAME_FOR_SEGMENT_01
+    without_name: YOUR_TEMPLATE_WITHOUT_NAME_FOR_SEGMENT_01
